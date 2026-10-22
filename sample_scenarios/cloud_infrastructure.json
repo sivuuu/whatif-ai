@@ -1,0 +1,54 @@
+{
+  "scenarios": [
+    {
+      "title": "Cloud Cost Scale-Up 2024",
+      "raw_input": "What if monthly cloud costs rise by 20%, user traffic doubles, and we need to maintain 99.9% availability?",
+      "domain": "cloud_infrastructure",
+      "variables": {
+        "base_monthly_cost": {"value": 10000, "unit": "USD/month", "dist": "fixed"},
+        "cost_increase_pct": {"value": 20, "unit": "%", "dist": "fixed"},
+        "traffic_multiplier": {"value": 2.0, "unit": "x", "dist": "fixed"},
+        "availability_target": {"value": 99.9, "unit": "%", "dist": "fixed"},
+        "current_instances": {"value": 4, "unit": "instances", "dist": "fixed"},
+        "instance_cost_per_hr": {"value": 0.096, "unit": "USD/hr", "dist": "fixed"},
+        "storage_gb": {"value": 500, "unit": "GB", "dist": "fixed"},
+        "storage_cost_per_gb": {"value": 0.023, "unit": "USD/GB/month", "dist": "fixed"},
+        "data_transfer_gb": {"value": 1000, "unit": "GB/month", "dist": "fixed"},
+        "transfer_cost_per_gb": {"value": 0.09, "unit": "USD/GB", "dist": "fixed"}
+      },
+      "constraints": [
+        {"name": "availability_target", "operator": ">=", "threshold": 99.9, "unit": "%"},
+        {"name": "total_monthly_cost", "operator": "<=", "threshold": 80000, "unit": "USD/month"}
+      ],
+      "assumptions": [
+        {"text": "730 compute hours per month (24×365/12)", "source": "model", "confidence": "high"},
+        {"text": "Storage scales linearly with traffic", "source": "model", "confidence": "medium"},
+        {"text": "99.9% SLA requires 2× active-passive redundancy", "source": "model", "confidence": "high"}
+      ]
+    },
+    {
+      "title": "Viral Traffic Event – Monte Carlo",
+      "raw_input": "Traffic could spike anywhere from 3x to 8x during our product launch. Cloud costs already at $15,000/month and likely to rise 10-30%. Need 99.9% availability.",
+      "domain": "cloud_infrastructure",
+      "variables": {
+        "base_monthly_cost": {"value": 15000, "unit": "USD/month", "dist": "normal", "std": 1500},
+        "cost_increase_pct": {"value": 20, "unit": "%", "dist": "uniform", "min": 10, "max": 30},
+        "traffic_multiplier": {"value": 5.0, "unit": "x", "dist": "triangular", "min": 3.0, "max": 8.0, "mode": 5.0},
+        "availability_target": {"value": 99.9, "unit": "%", "dist": "fixed"},
+        "current_instances": {"value": 8, "unit": "instances", "dist": "fixed"},
+        "instance_cost_per_hr": {"value": 0.096, "unit": "USD/hr", "dist": "fixed"},
+        "storage_gb": {"value": 1000, "unit": "GB", "dist": "fixed"},
+        "storage_cost_per_gb": {"value": 0.023, "unit": "USD/GB/month", "dist": "fixed"},
+        "data_transfer_gb": {"value": 2000, "unit": "GB/month", "dist": "fixed"},
+        "transfer_cost_per_gb": {"value": 0.09, "unit": "USD/GB", "dist": "fixed"}
+      },
+      "constraints": [
+        {"name": "total_monthly_cost", "operator": "<=", "threshold": 150000, "unit": "USD/month"}
+      ],
+      "assumptions": [
+        {"text": "Traffic distribution is triangular with mode at 5×", "source": "engineering_estimate", "confidence": "medium"},
+        {"text": "Base cost uncertainty is ±10% normally distributed", "source": "finance", "confidence": "medium"}
+      ]
+    }
+  ]
+}
